@@ -76,26 +76,26 @@ jar {
     from deps
     exclude 'META-INF/services/org.jd.gui.spi.*'
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
-    doFirst {
-        // Create temporary directory
-        def tmpSpiDir = file('build/tmp/spi')
-        tmpSpiDir.deleteDir()
-        tmpSpiDir.mkdirs()
-        // Copy and merge SPI config files
-        subprojects.each { subproject ->
-            def servicesDir = file(subproject.sourceSets.main.output.resourcesDir.path + File.separator + 'META-INF' + File.separator + 'services')
-            if (servicesDir.exists()) {
-                servicesDir.eachFile { source ->
-                    def target = file(tmpSpiDir.path + File.separator + source.name)
-                    target << source.text
-                }
+
+    // Create temporary directory
+    def tmpSpiDir = file('build/tmp/spi')
+    tmpSpiDir.deleteDir()
+    tmpSpiDir.mkdirs()
+    // Copy and merge SPI config files
+    subprojects.each { subproject ->
+        def servicesDir = file(subproject.sourceSets.main.output.resourcesDir.path + File.separator + 'META-INF' + File.separator + 'services')
+        if (servicesDir.exists()) {
+            servicesDir.eachFile { source ->
+                def target = file(tmpSpiDir.path + File.separator + source.name)
+                target << source.text
             }
         }
-        // Add to JAR file
-        into('META-INF/services') {
-            from tmpSpiDir
-        }
     }
+    // Add to JAR file
+    into('META-INF/services') {
+        from tmpSpiDir
+    }
+
 }
 
 // Windows wrapper configuration to generate "jd-gui.exe" //
